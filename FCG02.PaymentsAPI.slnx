@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FCG02.PaymentsAPI.API/FCG02.PaymentsAPI.API.csproj" />
+    <Project Path="src/FCG02.PaymentsAPI.Application/FCG02.PaymentsAPI.Application.csproj" />
+    <Project Path="src/FCG02.PaymentsAPI.Domain/FCG02.PaymentsAPI.Domain.csproj" />
+    <Project Path="src/FCG02.PaymentsAPI.Infrastructure/FCG02.PaymentsAPI.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FCG02.PaymentsAPI.UnitTests/FCG02.PaymentsAPI.UnitTests.csproj" />
+  </Folder>
+</Solution>

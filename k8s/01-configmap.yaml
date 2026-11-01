@@ -1,0 +1,16 @@
+# armazena configurações não sensíveis
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payments-api-config
+  labels:
+    app: payments-api
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  RabbitMQ__HostName: "rabbitmq-service"
+  RabbitMQ__Port: "5672"
+  RabbitMQ__UserName: "guest"
+  RabbitMQ__Exchange: "fcg.catalog.events"
+  RabbitMQ__OrderPlacedQueue: "payments.order-placed"
+  RabbitMQ__OrderPlacedRoutingKey: "order.placed"
