@@ -32,7 +32,7 @@ public class OrderPlacedConsumerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("[RabbitMQ Worker] Inicializando consumidor de pedidos em {Host}:{Port}...",
+        _logger.LogDebug("[RabbitMQ Worker] Inicializando consumidor de pedidos em {Host}:{Port}...",
             _settings.HostName, _settings.Port);
 
         var factory = new ConnectionFactory
@@ -84,7 +84,7 @@ public class OrderPlacedConsumerService : BackgroundService
                 consumer: consumer,
                 cancellationToken: stoppingToken);
 
-            _logger.LogInformation("[RabbitMQ Worker] Consumidor ativo na fila '{Queue}' vinculada à exchange '{Exchange}' (RoutingKey: '{RoutingKey}')",
+            _logger.LogDebug("[RabbitMQ Worker] Consumidor ativo na fila '{Queue}' vinculada à exchange '{Exchange}' (RoutingKey: '{RoutingKey}')",
                 _settings.OrderPlacedQueue, _settings.CatalogExchange, _settings.OrderPlacedRoutingKey);
 
             // Mantém o worker ativo aguardando mensagens até o encerramento do host
@@ -92,7 +92,7 @@ public class OrderPlacedConsumerService : BackgroundService
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("[RabbitMQ Worker] Encerrando o consumidor de pagamentos...");
+            _logger.LogDebug("[RabbitMQ Worker] Encerrando o consumidor de pagamentos...");
         }
         catch (Exception ex)
         {
@@ -107,7 +107,7 @@ public class OrderPlacedConsumerService : BackgroundService
 
         try
         {
-            _logger.LogInformation("[RabbitMQ Worker] Pedido recebido! RoutingKey: '{RoutingKey}', DeliveryTag: {Tag}",
+            _logger.LogDebug("[RabbitMQ Worker] Pedido recebido! RoutingKey: '{RoutingKey}', DeliveryTag: {Tag}",
                 @event.RoutingKey, @event.DeliveryTag);
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -121,7 +121,7 @@ public class OrderPlacedConsumerService : BackgroundService
                 return;
             }
 
-            _logger.LogInformation("[RabbitMQ Worker] Processando pagamento do Pedido {OrderId}. UserId: {UserId}, GameId: {GameId}, Valor: R$ {Price}",
+            _logger.LogInformation("💳 [PaymentsAPI] Microsserviço de pagamentos recebeu o push do pedido {OrderId} (UserId: {UserId}, Jogo: {GameId}, Valor: R$ {Price:F2}).",
                 orderEvent.OrderId, orderEvent.UserId, orderEvent.GameId, orderEvent.Price);
 
             // cria o escopo para resolver o IPaymentService (Scoped)
@@ -131,8 +131,11 @@ public class OrderPlacedConsumerService : BackgroundService
             // executa o processamento do pagamento
             var response = await paymentService.ProcessOrderPaymentAsync(orderEvent, @event.CancellationToken);
 
-            _logger.LogInformation("[RabbitMQ Worker] Pagamento do Pedido {OrderId} finalizado com status '{Status}'. Id da Transação: {Id}",
-                response.OrderId, response.Status, response.Id);
+            _logger.LogInformation("✅ [PaymentsAPI] Validações realizadas e pagamento processado com status '{Status}' (Transação: {Id}). Tabela(s) modificada(s): PaymentTransactions.",
+                response.Status, response.Id);
+
+            _logger.LogInformation("🚀 [PaymentsAPI] Evento 'PaymentProcessedEvent' postado na fila para recuperação pelo Catálogo e Notificações (RoutingKey: 'payment.{Status}').",
+                response.Status.ToLower());
 
             // Confirma o processamento com sucesso removendo a mensagem da fila
             await _channel!.BasicAckAsync(@event.DeliveryTag, multiple: false, cancellationToken: @event.CancellationToken);

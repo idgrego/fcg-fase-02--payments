@@ -136,6 +136,25 @@ A API estará acessível em `http://localhost:5000` (ou na porta informada no te
 
 ---
 
+### 3.3. Dicionário de Variáveis de Ambiente
+
+As seguintes variáveis configuram o comportamento da **PaymentsAPI** em contêineres e ambientes produtivos:
+
+| Variável de Ambiente | Descrição | Exemplo de Valor |
+|---|---|---|
+| `ASPNETCORE_ENVIRONMENT` | Perfil de execução do ASP.NET Core | `Development` ou `Production` |
+| `ConnectionStrings__DefaultConnection` | String de conexão para o Azure Database (`fcg-02-paymentsdb`) | `Server=tcp:...;Database=fcg-02-paymentsdb;...` |
+| `RabbitMQ__HostName` | Endereço do broker RabbitMQ | `rabbitmq` ou `localhost` |
+| `RabbitMQ__Port` | Porta do broker RabbitMQ | `5672` |
+| `RabbitMQ__UserName` | Usuário de autenticação no RabbitMQ | `guest` |
+| `RabbitMQ__Password` | Senha de autenticação no RabbitMQ | `guest` |
+| `RabbitMQ__Exchange` | Exchange de pagamentos para publicação do resultado | `fcg.payments.events` |
+| `RabbitMQ__CatalogExchange` | Exchange do catálogo para escuta de novos pedidos | `fcg.catalog.events` |
+| `RabbitMQ__OrderPlacedQueue` | Fila durável para consumo de pedidos de compra | `payments.order-placed` |
+| `RabbitMQ__OrderPlacedRoutingKey` | Routing Key para consumir pedidos de compra | `order.placed` |
+
+---
+
 ## 4. Endpoints HTTP & Documentação Interativa (Scalar)
 
 Com o serviço em execução, acesse a interface interativa do **Scalar**:

@@ -46,7 +46,7 @@ public class RabbitMqEventPublisher
             if (_connection is not null && _connection.IsOpen)
                 return _connection;
 
-            _logger.LogInformation("[RabbitMQ Publisher] Conectando ao broker em {Host}:{Port}...",
+            _logger.LogDebug("[RabbitMQ Publisher] Conectando ao broker em {Host}:{Port}...",
                 _settings.HostName, _settings.Port);
 
             _connection = await _factory.CreateConnectionAsync(cancellationToken);
@@ -106,7 +106,7 @@ public class RabbitMqEventPublisher
                 cancellationToken: cancellationToken
             );
 
-            _logger.LogInformation("[RabbitMQ Publisher] Evento '{EventName}' publicado com sucesso na exchange '{Exchange}' (RoutingKey: '{RoutingKey}')",
+            _logger.LogDebug("[RabbitMQ Publisher] Evento '{EventName}' publicado com sucesso na exchange '{Exchange}' (RoutingKey: '{RoutingKey}')",
                 typeof(TEvent).Name, _settings.Exchange, routingKey);
         }
         catch (System.Exception ex)
